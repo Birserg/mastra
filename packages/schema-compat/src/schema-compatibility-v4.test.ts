@@ -1,5 +1,5 @@
 import { MockLanguageModelV3 } from '@internal/ai-v6/test';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { z } from 'zod';
 import { SchemaCompatLayer } from './schema-compatibility';
 import type { ZodType } from './schema.types';
@@ -490,8 +490,7 @@ describe('SchemaCompatLayer', () => {
       expect(items.properties.value.description).toBe('The value');
     });
 
-    // TODO: figure out how to handle this, with z.toJSONSchema, optional schemas are represented as-is
-    it.only('should handle optional object schemas', () => {
+    it('should handle optional object schemas', () => {
       const optionalSchema = z
         .object({
           name: z.string(),
@@ -502,33 +501,35 @@ describe('SchemaCompatLayer', () => {
       expect(result.validate!({ name: 'test' }).success).toBe(true);
       expect(result.validate!(undefined).success).toBe(true);
 
-      const jsonSchema = result.jsonSchema;
-      const objectDef = (jsonSchema.anyOf as any[])?.find(def => def.type === 'object');
-      console.log(jsonSchema);
-      expect(objectDef.properties.name.description).toBe('string:processed');
+      // In Zod v4, z.toJSONSchema() strips the optional wrapper and just returns the inner type's schema
+      // So we verify the inner object was processed by checking properties directly
+      const jsonSchema = result.jsonSchema as any;
+      expect(jsonSchema.type).toBe('object');
+      expect(jsonSchema.properties.name.description).toBe('string:processed');
     });
 
-    it.skip('should handle optional array schemas', () => {
+    it('should handle optional array schemas', () => {
       const optionalSchema = z.array(z.string()).optional();
       const result = compatibility.processToAISDKSchema(optionalSchema);
       expect(result.validate!(['test']).success).toBe(true);
       expect(result.validate!(undefined).success).toBe(true);
 
-      const jsonSchema = result.jsonSchema;
-      const arrayDef = (jsonSchema.anyOf as any[])?.find(def => def.type === 'array');
-      const items = arrayDef.items as any;
-      expect(items.description).toBe('string:processed');
+      // In Zod v4, z.toJSONSchema() strips the optional wrapper and just returns the inner type's schema
+      const jsonSchema = result.jsonSchema as any;
+      expect(jsonSchema.type).toBe('array');
+      expect(jsonSchema.items.description).toBe('string:processed');
     });
 
-    it.skip('should handle optional scalar schemas', () => {
+    it('should handle optional scalar schemas', () => {
       const optionalSchema = z.string().optional();
       const result = compatibility.processToAISDKSchema(optionalSchema);
       expect(result.validate!('test').success).toBe(true);
       expect(result.validate!(undefined).success).toBe(true);
 
-      const jsonSchema = result.jsonSchema;
-      const stringDef = (jsonSchema.anyOf as any[])?.find(def => def.type === 'string');
-      expect(stringDef.description).toBe('string:processed');
+      // In Zod v4, z.toJSONSchema() strips the optional wrapper and just returns the inner type's schema
+      const jsonSchema = result.jsonSchema as any;
+      expect(jsonSchema.type).toBe('string');
+      expect(jsonSchema.description).toBe('string:processed');
     });
   });
 });

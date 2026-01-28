@@ -21,6 +21,7 @@ function jsonSchemaOverride(ctx: { zodSchema: unknown; jsonSchema: Record<string
     ctx.jsonSchema.type = 'string';
     ctx.jsonSchema.format = 'date-time';
   }
+
   return undefined;
 }
 
@@ -253,13 +254,16 @@ export function standardSchemaToJSONSchema(
   options: {
     target?: StandardJSONSchemaV1.Target;
     io?: 'input' | 'output';
-    override?: typeof JSON_SCHEMA_LIBRARY_OPTIONS['override']
+    override?: (typeof JSON_SCHEMA_LIBRARY_OPTIONS)['override'];
   } = {},
 ): JSONSchema7 {
   const { target = 'draft-07', io = 'output', override = JSON_SCHEMA_LIBRARY_OPTIONS.override } = options;
   const jsonSchemaFn = schema['~standard'].jsonSchema[io];
-  return jsonSchemaFn({ target, libraryOptions: {
-    ...JSON_SCHEMA_LIBRARY_OPTIONS,
-  override
-} }) as JSONSchema7;
+  return jsonSchemaFn({
+    target,
+    libraryOptions: {
+      ...JSON_SCHEMA_LIBRARY_OPTIONS,
+      override,
+    },
+  }) as JSONSchema7;
 }

@@ -436,9 +436,9 @@ describe('SchemaCompatLayer', () => {
       expect(result.validate!({ name: 'test' }).success).toBe(true);
       expect(result.validate!(undefined).success).toBe(true);
 
-      const jsonSchema = result.jsonSchema;
-      console.log(jsonSchema);
-      const objectDef = (jsonSchema.anyOf as any[])?.find(def => def.type === 'object');
+      // In Zod v3 with zod-to-json-schema, optional produces anyOf with {not: {}} and the actual type
+      const jsonSchema = result.jsonSchema as any;
+      const objectDef = (jsonSchema.anyOf as any[])?.find((def: any) => def.type === 'object');
       expect(objectDef.properties.name.description).toBe('string:processed');
     });
 
@@ -448,8 +448,9 @@ describe('SchemaCompatLayer', () => {
       expect(result.validate!(['test']).success).toBe(true);
       expect(result.validate!(undefined).success).toBe(true);
 
-      const jsonSchema = result.jsonSchema;
-      const arrayDef = (jsonSchema.anyOf as any[])?.find(def => def.type === 'array');
+      // In Zod v3 with zod-to-json-schema, optional produces anyOf with {not: {}} and the actual type
+      const jsonSchema = result.jsonSchema as any;
+      const arrayDef = (jsonSchema.anyOf as any[])?.find((def: any) => def.type === 'array');
       const items = arrayDef.items as any;
       expect(items.description).toBe('string:processed');
     });
@@ -460,8 +461,9 @@ describe('SchemaCompatLayer', () => {
       expect(result.validate!('test').success).toBe(true);
       expect(result.validate!(undefined).success).toBe(true);
 
-      const jsonSchema = result.jsonSchema;
-      const stringDef = (jsonSchema.anyOf as any[])?.find(def => def.type === 'string');
+      // In Zod v3 with zod-to-json-schema, optional produces anyOf with {not: {}} and the actual type
+      const jsonSchema = result.jsonSchema as any;
+      const stringDef = (jsonSchema.anyOf as any[])?.find((def: any) => def.type === 'string');
       expect(stringDef.description).toBe('string:processed');
     });
   });

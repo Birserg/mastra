@@ -249,7 +249,10 @@ export function defaultZodArrayHandler(
 /**
  * Default handler for Zod union types. Processes all union options.
  */
-export function defaultZodUnionHandler(ctx: HandlerContext, value: ZodUnion<[ZodTypeAny, ...ZodTypeAny[]]>): ZodTypeAny {
+export function defaultZodUnionHandler(
+  ctx: HandlerContext,
+  value: ZodUnion<[ZodTypeAny, ...ZodTypeAny[]]>,
+): ZodTypeAny {
   const processedOptions = value._def.options.map((option: ZodTypeAny) => ctx.processZodType(option));
   if (processedOptions.length < 2) throw new Error('Union must have at least 2 options');
   let result = z.union(processedOptions as [ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]);
@@ -405,15 +408,20 @@ export function defaultZodDateHandler(value: ZodDate): ZodString {
 }
 
 /**
- * Default handler for Zod optional types. Processes the inner type and maintains optionality.
+ * Default handler for Zod nullable types. Processes the inner type and maintains nullability.
  */
-export function defaultZodOptionalHandler(
+export function defaultZodNullableHandler(
   ctx: HandlerContext,
-  value: ZodOptional<any>,
+  value: ZodNullable<any>,
   handleTypes: readonly string[] = SUPPORTED_ZOD_TYPES,
 ): ZodTypeAny {
   if (handleTypes.includes(value._def.innerType._def.typeName as AllZodType)) {
-    return ctx.processZodType(value._def.innerType).optional();
+    const processed = ctx.processZodType(value._def.innerType);
+    let result = processed.nullable();
+    if (value.description) {
+      result = result.describe(value.description);
+    }
+    return result;
   } else {
     return value;
   }

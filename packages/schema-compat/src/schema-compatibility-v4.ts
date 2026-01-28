@@ -189,7 +189,7 @@ export function defaultZodObjectHandler(
   }
 
   if (value.description) {
-    result = result.describe(value.description);
+    result = result.meta({ description: value.description });
   }
 
   return result;
@@ -220,35 +220,35 @@ export function defaultZodArrayHandler(
   const zodArrayDef = value._zod.def;
   const processedType = ctx.processZodType(zodArrayDef.element);
 
-  let result = z.array(processedType);
+  let result: ZodArray<any> = z.array(processedType);
 
   const constraints: ConstraintHelperText = [];
   if (zodArrayDef.checks) {
     for (const check of zodArrayDef.checks) {
       if (check._zod.def.check === 'min_length') {
         if (handleChecks.includes('min')) {
-          // @ts-expect-error - fix later
+          // @ts-expect-error - accessing internal def structure
           constraints.push(`minimum length ${check._zod.def.minimum}`);
         } else {
-          // @ts-expect-error - fix later
+          // @ts-expect-error - accessing internal def structure
           result = result.min(check._zod.def.minimum);
         }
       }
       if (check._zod.def.check === 'max_length') {
         if (handleChecks.includes('max')) {
-          // @ts-expect-error - fix later
+          // @ts-expect-error - accessing internal def structure
           constraints.push(`maximum length ${check._zod.def.maximum}`);
         } else {
-          // @ts-expect-error - fix later
+          // @ts-expect-error - accessing internal def structure
           result = result.max(check._zod.def.maximum);
         }
       }
       if (check._zod.def.check === 'length_equals') {
         if (handleChecks.includes('length')) {
-          // @ts-expect-error - fix later
+          // @ts-expect-error - accessing internal def structure
           constraints.push(`exact length ${check._zod.def.length}`);
         } else {
-          // @ts-expect-error - fix later
+          // @ts-expect-error - accessing internal def structure
           result = result.length(check._zod.def.length);
         }
       }
@@ -262,6 +262,7 @@ export function defaultZodArrayHandler(
   if (description) {
     result = result.describe(description);
   }
+
   return result;
 }
 
@@ -456,15 +457,20 @@ export function defaultZodDateHandler(value: ZodDate): ZodString {
 }
 
 /**
- * Default handler for Zod optional types. Processes the inner type and maintains optionality.
+ * Default handler for Zod nullable types. Processes the inner type and maintains nullability.
  */
-export function defaultZodOptionalHandler(
+export function defaultZodNullableHandler(
   ctx: HandlerContext,
-  value: ZodOptional<any>,
+  value: ZodNullable<any>,
   handleTypes: readonly string[] = SUPPORTED_ZOD_TYPES,
 ): ZodType {
   if (handleTypes.includes(value.constructor.name as AllZodType)) {
-    return ctx.processZodType(value._zod.def.innerType).optional();
+    const processed = ctx.processZodType(value._zod.def.innerType);
+    let result = processed.nullable();
+    if (value.description) {
+      result = result.describe(value.description);
+    }
+    return result;
   } else {
     return value;
   }

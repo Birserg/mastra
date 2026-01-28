@@ -9,21 +9,19 @@ export default defineConfig({
           name: 'v4',
           environment: 'node',
           include: ['src/**/*.test.ts'],
-          exclude: [
-            'src/**/*-v3.test.ts',
-            'src/**/*v3.test.ts',
-            'src/**/zod-v3.test.ts',
-          ],
+          exclude: ['src/**/*-v3.test.ts'],
         },
       },
       {
         test: {
           name: 'v3',
           environment: 'node',
-          include: [
-            'src/**/*-v3.test.ts',
-            'src/**/*v3.test.ts',
-            'src/**/zod-v3.test.ts',
+          include: ['src/**/*.test.ts'],
+          exclude: [
+            'src/**/*-v4.test.ts',
+            // Exclude provider-compats tests from v3 since they have snapshot tests
+            // that produce different output between v3 (zod-to-json-schema) and v4 (native toJSONSchema)
+            'src/provider-compats/*.test.ts',
           ],
         },
         resolve: {

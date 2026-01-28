@@ -67,10 +67,10 @@
     "zod": "^3.25.0 || ^4.0.0"
   },
   "devDependencies": {
-    "@standard-schema/spec": "^1.0.0",
     "@internal/ai-v6": "workspace:*",
     "@internal/lint": "workspace:*",
     "@internal/types-builder": "workspace:*",
+    "@standard-schema/spec": "^1.0.0",
     "@types/json-schema": "^7.0.15",
     "@types/node": "22.19.7",
     "@vitest/coverage-v8": "catalog:",
@@ -78,6 +78,7 @@
     "ajv": "^8.17.1",
     "arktype": "^2.1.29",
     "eslint": "^9.37.0",
+    "json-schema-traverse": "^1.0.0",
     "tsup": "^8.5.1",
     "typescript": "catalog:",
     "vitest": "catalog:",

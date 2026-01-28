@@ -1,7 +1,9 @@
+import type { JSONSchema7 } from 'json-schema';
 import { z } from 'zod';
-import type { ZodType as ZodTypeV3, ZodObject as ZodObjectV3 } from 'zod/v3';
-import type { ZodType as ZodTypeV4, ZodObject as ZodObjectV4 } from 'zod/v4';
+import type { ZodObject as ZodObjectV3 } from 'zod/v3';
+import type { ZodObject as ZodObjectV4 } from 'zod/v4';
 import type { Targets } from 'zod-to-json-schema';
+import { isArraySchema, isNumberSchema, isObjectSchema, isStringSchema, isUnionSchema } from '../json-schema/utils';
 import { SchemaCompatLayer } from '../schema-compatibility';
 import type { ZodType } from '../schema.types';
 import type { ModelInformation } from '../types';
@@ -44,5 +46,45 @@ export class GoogleSchemaCompatLayer extends SchemaCompatLayer {
       return this.defaultZodNumberHandler(value);
     }
     return this.defaultUnsupportedZodTypeHandler(value as ZodObjectV4<any> | ZodObjectV3<any>);
+  }
+
+  preProcessJSONNode(schema: JSONSchema7, _parentSchema?: JSONSchema7): void {
+    // Process based on schema type
+    if (isObjectSchema(schema)) {
+      this.defaultObjectHandler(schema);
+    } else if (isArraySchema(schema)) {
+      this.defaultArrayHandler(schema);
+    } else if (isStringSchema(schema)) {
+      // Google models don't respect string constraints, so convert them to description
+      this.defaultStringHandler(schema);
+    } else if (isNumberSchema(schema)) {
+      // Google models don't respect number constraints, so convert them to description
+      this.defaultNumberHandler(schema);
+    }
+  }
+
+  postProcessJSONNode(schema: JSONSchema7): void {
+    // Handle union schemas in post-processing (after children are processed)
+    if (isUnionSchema(schema)) {
+      this.defaultUnionHandler(schema);
+    }
+
+    // Fix v4-specific issues in post-processing
+    if (isObjectSchema(schema)) {
+      // Fix passthrough objects: convert additionalProperties: {} to additionalProperties: true
+      if (
+        schema.additionalProperties !== undefined &&
+        typeof schema.additionalProperties === 'object' &&
+        schema.additionalProperties !== null &&
+        Object.keys(schema.additionalProperties).length === 0
+      ) {
+        schema.additionalProperties = true;
+      }
+
+      // Fix record schemas: remove propertyNames (v4 adds this but it's not needed)
+      if ('propertyNames' in schema) {
+        delete (schema as Record<string, unknown>).propertyNames;
+      }
+    }
   }
 }

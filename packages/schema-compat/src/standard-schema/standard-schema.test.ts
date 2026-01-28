@@ -2,6 +2,7 @@ import { jsonSchema as aiSdkJsonSchema } from '@internal/ai-v6';
 import { type } from 'arktype';
 import type { JSONSchema7 } from 'json-schema';
 import { describe, it, expect } from 'vitest';
+import zDefault from 'zod';
 import z4 from 'zod/v4';
 import z3 from 'zod-v3';
 import {
@@ -11,6 +12,10 @@ import {
   isStandardSchemaWithJSON,
   standardSchemaToJSONSchema,
 } from './standard-schema';
+
+// Detect if the default 'zod' import is v4 (not aliased to v3 by vitest)
+// When running under the v3 vitest project, 'zod' is aliased to 'zod-v3'
+const isDefaultZodV4 = '_zod' in zDefault.string();
 
 // ============================================================================
 // Test Fixtures
@@ -198,12 +203,12 @@ describe('isStandardJSONSchema', () => {
 
   describe('with Zod v4 (default zod export)', () => {
     // Note: The default 'zod' export in v3.x does NOT implement StandardJSONSchema natively
-    it('should return true for unwrapped Zod v4 schemas (native JSON Schema support)', () => {
+    it.skipIf(!isDefaultZodV4)('should return true for unwrapped Zod v4 schemas (native JSON Schema support)', () => {
       expect(isStandardJSONSchema(zodV4StringSchema)).toBe(true);
       expect(isStandardJSONSchema(zodV4ObjectSchema)).toBe(true);
     });
 
-    it('should return true for wrapped Zod v4 schemas', () => {
+    it.skipIf(!isDefaultZodV4)('should return true for wrapped Zod v4 schemas', () => {
       const wrapped = toStandardSchema(zodV4ObjectSchema);
       expect(isStandardJSONSchema(wrapped)).toBe(true);
     });
@@ -286,12 +291,12 @@ describe('isStandardSchemaWithJSON', () => {
   });
 
   describe('with Zod v4 (default zod export)', () => {
-    it('should return true for unwrapped Zod v4 schemas', () => {
+    it.skipIf(!isDefaultZodV4)('should return true for unwrapped Zod v4 schemas', () => {
       expect(isStandardSchemaWithJSON(zodV4StringSchema)).toBe(true);
       expect(isStandardSchemaWithJSON(zodV4ObjectSchema)).toBe(true);
     });
 
-    it('should return true for wrapped Zod v4 schemas', () => {
+    it.skipIf(!isDefaultZodV4)('should return true for wrapped Zod v4 schemas', () => {
       const wrapped = toStandardSchema(zodV4ObjectSchema);
       expect(isStandardSchemaWithJSON(wrapped)).toBe(true);
     });
@@ -374,12 +379,12 @@ describe('toStandardSchema', () => {
 
   describe('with Zod v4 (default zod export)', () => {
     // Note: The default 'zod' export in v3.x needs wrapping (same as zod/v3)
-    it('should wrap Zod v4 schema', () => {
+    it.skipIf(!isDefaultZodV4)('should wrap Zod v4 schema', () => {
       const result = toStandardSchema(zodV4ObjectSchema);
       expect(isStandardSchemaWithJSON(result)).toBe(true);
     });
 
-    it('should validate correctly with wrapped Zod v4 schema', async () => {
+    it.skipIf(!isDefaultZodV4)('should validate correctly with wrapped Zod v4 schema', async () => {
       const result = toStandardSchema(zodV4ObjectSchema);
       const validData = { name: 'John', age: 30 };
       const validation = await result['~standard'].validate(validData);
@@ -527,7 +532,7 @@ describe('standardSchemaToJSONSchema', () => {
   });
 
   describe('with Zod v4', () => {
-    it('should convert wrapped Zod v4 schema to JSON Schema', () => {
+    it.skipIf(!isDefaultZodV4)('should convert wrapped Zod v4 schema to JSON Schema', () => {
       // Note: Zod v3.x (exported as default from 'zod') doesn't have native StandardJSONSchema
       // so we need to wrap it first
       const wrapped = toStandardSchema(zodV4ObjectSchema);
@@ -539,7 +544,7 @@ describe('standardSchemaToJSONSchema', () => {
       expect(result.properties!.age).toEqual({ type: 'number' });
     });
 
-    it('should handle optional fields in Zod v4', () => {
+    it.skipIf(!isDefaultZodV4)('should handle optional fields in Zod v4', () => {
       const wrapped = toStandardSchema(zodV4OptionalSchema);
       const result = standardSchemaToJSONSchema(wrapped);
 
