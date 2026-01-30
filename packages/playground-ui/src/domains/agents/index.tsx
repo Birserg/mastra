@@ -22,3 +22,4 @@ export * from './components/agent-layout';
 export * from './components/create-agent/edit-agent-dialog';
 export * from './components/create-agent/agent-form';
 export * from './components/create-agent/form-validation';
+export * from './components/agent-create';
