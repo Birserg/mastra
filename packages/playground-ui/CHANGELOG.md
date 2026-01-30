@@ -1,5 +1,34 @@
 # @mastra/playground-ui
 
+## 8.1.0-alpha.0
+
+### Minor Changes
+
+- Added Add Skill dialog for browsing and installing skills from skills.sh registry. ([#12492](https://github.com/mastra-ai/mastra/pull/12492))
+
+  **New features:**
+  - Search skills or browse popular skills from skills.sh
+  - Preview skill content with rendered SKILL.md (tables, code blocks, etc.)
+  - Install, update, and remove skills directly from the UI
+  - Shows installed status for skills already in workspace
+
+### Patch Changes
+
+- Use EntryCell icon prop for source indicator in agent table ([#12515](https://github.com/mastra-ai/mastra/pull/12515))
+
+- Updated Badge component styling: increased height to 28px, changed to pill shape with rounded-full, added border, and increased padding for better visual appearance. ([#12511](https://github.com/mastra-ai/mastra/pull/12511))
+
+- Fixed sidebar tooltip styling in collapsed mode by removing hardcoded color overrides ([#12537](https://github.com/mastra-ai/mastra/pull/12537))
+
+- Improved workspace filesystem error handling: return 404 for not-found errors instead of 500, show user-friendly error messages in UI, and add MastraClientError class with status/body properties for better error handling ([#12533](https://github.com/mastra-ai/mastra/pull/12533))
+
+- Fixed combobox dropdowns in agent create/edit dialogs to render within the modal container, preventing z-index and scrolling issues. ([#12510](https://github.com/mastra-ai/mastra/pull/12510))
+
+- Updated dependencies [[`5fe1fe0`](https://github.com/mastra-ai/mastra/commit/5fe1fe0109faf2c87db34b725d8a4571a594f80e), [`aa37c84`](https://github.com/mastra-ai/mastra/commit/aa37c84d29b7db68c72517337932ef486c316275), [`47eba72`](https://github.com/mastra-ai/mastra/commit/47eba72f0397d0d14fbe324b97940c3d55e5a525)]:
+  - @mastra/core@1.2.0-alpha.0
+  - @mastra/client-js@1.1.1-alpha.0
+  - @mastra/react@0.2.1-alpha.0
+
 ## 8.0.0
 
 ### Minor Changes

@@ -1,5 +1,26 @@
 # @mastra/server
 
+## 1.2.0-alpha.0
+
+### Minor Changes
+
+- Added skills.sh proxy endpoints for browsing, searching, and installing skills from the community registry. ([#12492](https://github.com/mastra-ai/mastra/pull/12492))
+
+  **New endpoints:**
+  - GET /api/workspaces/:id/skills-sh/search - Search skills
+  - GET /api/workspaces/:id/skills-sh/popular - Browse popular skills
+  - GET /api/workspaces/:id/skills-sh/preview - Preview skill SKILL.md content
+  - POST /api/workspaces/:id/skills-sh/install - Install a skill from GitHub
+  - POST /api/workspaces/:id/skills-sh/update - Update installed skills
+  - POST /api/workspaces/:id/skills-sh/remove - Remove an installed skill
+
+### Patch Changes
+
+- Improved workspace filesystem error handling: return 404 for not-found errors instead of 500, show user-friendly error messages in UI, and add MastraClientError class with status/body properties for better error handling ([#12533](https://github.com/mastra-ai/mastra/pull/12533))
+
+- Updated dependencies [[`5fe1fe0`](https://github.com/mastra-ai/mastra/commit/5fe1fe0109faf2c87db34b725d8a4571a594f80e), [`aa37c84`](https://github.com/mastra-ai/mastra/commit/aa37c84d29b7db68c72517337932ef486c316275), [`47eba72`](https://github.com/mastra-ai/mastra/commit/47eba72f0397d0d14fbe324b97940c3d55e5a525)]:
+  - @mastra/core@1.2.0-alpha.0
+
 ## 1.1.0
 
 ### Minor Changes

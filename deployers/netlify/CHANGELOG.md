@@ -1,5 +1,13 @@
 # @mastra/deployer-netlify
 
+## 1.0.3-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`5fe1fe0`](https://github.com/mastra-ai/mastra/commit/5fe1fe0109faf2c87db34b725d8a4571a594f80e), [`aa37c84`](https://github.com/mastra-ai/mastra/commit/aa37c84d29b7db68c72517337932ef486c316275), [`47eba72`](https://github.com/mastra-ai/mastra/commit/47eba72f0397d0d14fbe324b97940c3d55e5a525)]:
+  - @mastra/core@1.2.0-alpha.0
+  - @mastra/deployer@1.2.0-alpha.0
+
 ## 1.0.2
 
 ### Patch Changes

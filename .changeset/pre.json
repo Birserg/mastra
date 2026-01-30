@@ -102,5 +102,17 @@
     "@mastra/voice-speechify": "0.12.0",
     "@mastra/inngest": "1.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "afraid-dodos-hunt",
+    "chubby-ads-prove",
+    "fast-pandas-nail",
+    "fix-kimi-k2-5-reasoning",
+    "fruity-clubs-joke",
+    "heavy-ads-allow",
+    "kind-rivers-jam",
+    "smooth-swans-hammer",
+    "swift-bags-joke",
+    "two-shrimps-smoke",
+    "yummy-nights-return"
+  ]
 }

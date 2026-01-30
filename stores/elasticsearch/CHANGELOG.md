@@ -1,5 +1,36 @@
 # @mastra/elasticsearch
 
+## 1.1.0-alpha.0
+
+### Minor Changes
+
+- **Added** API key, basic, and bearer authentication options for Elasticsearch connections. ([#11298](https://github.com/mastra-ai/mastra/pull/11298))
+
+  **Changed** vector IDs now come from Elasticsearch `_id`; stored `id` fields are no longer written (breaking if you relied on `source.id`).
+
+  **Why** This aligns with Elasticsearch auth best practices and avoids duplicate IDs in stored documents.
+
+  **Before**
+
+  ```ts
+  const store = new ElasticSearchVector({ url, id: 'my-index' });
+  ```
+
+  **After**
+
+  ```ts
+  const store = new ElasticSearchVector({
+    url,
+    id: 'my-index',
+    auth: { apiKey: process.env.ELASTICSEARCH_API_KEY! },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`5fe1fe0`](https://github.com/mastra-ai/mastra/commit/5fe1fe0109faf2c87db34b725d8a4571a594f80e), [`aa37c84`](https://github.com/mastra-ai/mastra/commit/aa37c84d29b7db68c72517337932ef486c316275), [`47eba72`](https://github.com/mastra-ai/mastra/commit/47eba72f0397d0d14fbe324b97940c3d55e5a525)]:
+  - @mastra/core@1.2.0-alpha.0
+
 ## 1.0.0
 
 ### Minor Changes

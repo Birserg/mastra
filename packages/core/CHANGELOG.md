@@ -1,5 +1,19 @@
 # @mastra/core
 
+## 1.2.0-alpha.0
+
+### Patch Changes
+
+- Fix moonshotai/kimi-k2.5 multi-step tool calling failing with "reasoning_content is missing in assistant tool call message" ([#12530](https://github.com/mastra-ai/mastra/pull/12530))
+  - Changed moonshotai and moonshotai-cn (China version) providers to use Anthropic-compatible API endpoints instead of OpenAI-compatible
+    - moonshotai: `https://api.moonshot.ai/anthropic/v1`
+    - moonshotai-cn: `https://api.moonshot.cn/anthropic/v1`
+  - This properly handles reasoning_content for kimi-k2.5 model
+
+- Improved workspace filesystem error handling: return 404 for not-found errors instead of 500, show user-friendly error messages in UI, and add MastraClientError class with status/body properties for better error handling ([#12533](https://github.com/mastra-ai/mastra/pull/12533))
+
+- Fixed JSON parsing in agent network to handle malformed LLM output. Uses parsePartialJson from AI SDK to recover truncated JSON, missing braces, and unescaped control characters instead of failing immediately. This reduces unnecessary retry round-trips when the routing agent generates slightly malformed JSON for tool/workflow prompts. Fixes #12519. ([#12526](https://github.com/mastra-ai/mastra/pull/12526))
+
 ## 1.1.0
 
 ### Minor Changes
