@@ -76,7 +76,7 @@ export const CodeEditor = ({
   const languageExtension = useMemo(() => getLanguageExtension(language), [language]);
 
   return (
-    <div className={cn('rounded-md bg-surface4 p-1 font-mono relative', className)} {...props}>
+    <div className={cn('rounded-md bg-surface3 p-1 font-mono relative', className)} {...props}>
       {showCopyButton && <CopyButton content={formattedCode} className="absolute top-2 right-2 z-20" />}
       <CodeMirror
         value={formattedCode}
