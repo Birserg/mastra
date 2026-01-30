@@ -6,9 +6,9 @@ import type { Targets } from 'zod-to-json-schema';
 import type { JSONSchema7, Schema } from './json-schema';
 import * as jsonSchemaUtils from './json-schema/utils';
 import * as v3 from './schema-compatibility-v3';
-import type { HandlerContext as HandlerContextV3 } from './schema-compatibility-v3';
+import { SchemaCompatLayer as SchemaCompatLayerV3 } from './schema-compatibility-v3';
 import * as v4 from './schema-compatibility-v4';
-import type { HandlerContext as HandlerContextV4 } from './schema-compatibility-v4';
+import { SchemaCompatLayer as SchemaCompatLayerV4 } from './schema-compatibility-v4';
 import type { ZodType, ZodUnion } from './schema.types';
 import { standardSchemaToJSONSchema, toStandardSchema } from './standard-schema/standard-schema';
 import { convertZodSchemaToAISDKSchema } from './utils';
@@ -49,60 +49,74 @@ export type ModelInformation = {
 
 export abstract class SchemaCompatLayer {
   private model: ModelInformation;
+  private v3Layer: SchemaCompatLayerV3;
+  private v4Layer: SchemaCompatLayerV4;
 
+  /**
+   * Creates a new schema compatibility instance.
+   *
+   * @param model - The language model this compatibility layer applies to
+   */
   constructor(model: ModelInformation) {
     this.model = model;
+    this.v3Layer = new SchemaCompatLayerV3(model, this);
+    this.v4Layer = new SchemaCompatLayerV4(model, this);
   }
 
+  /**
+   * Gets the language model associated with this compatibility layer.
+   *
+   * @returns The language model instance
+   */
   getModel(): ModelInformation {
     return this.model;
   }
 
   getUnsupportedZodTypes(value: ZodType): readonly string[] {
     if ('_zod' in value) {
-      return v4.getUnsupportedZodTypes();
+      return this.v4Layer.getUnsupportedZodTypes();
     } else {
-      return v3.getUnsupportedZodTypes();
+      return this.v3Layer.getUnsupportedZodTypes();
     }
   }
 
   isOptional(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodOptional<any> | zV4.ZodOptional<any> {
     if ('_zod' in v) {
-      return v4.isOptional(v as zV4.ZodType);
+      return this.v4Layer.isOptional(v as any);
     } else {
-      return v3.isOptional(v as zV3.ZodType);
+      return this.v3Layer.isOptional(v as any);
     }
   }
 
   isObj(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodObject<any, any, any, any, any> | zV4.ZodObject<any, any> {
     if ('_zod' in v) {
-      return v4.isObj(v as zV4.ZodType);
+      return this.v4Layer.isObj(v as any);
     } else {
-      return v3.isObj(v as zV3.ZodType);
+      return this.v3Layer.isObj(v as any);
     }
   }
 
   isNull(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodNull | zV4.ZodNull {
     if ('_zod' in v) {
-      return v4.isNull(v as zV4.ZodType);
+      return this.v4Layer.isNull(v as any);
     } else {
-      return v3.isNull(v as zV3.ZodType);
+      return this.v3Layer.isNull(v as any);
     }
   }
 
   isNullable(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodNullable<any> | zV4.ZodNullable<any> {
     if ('_zod' in v) {
-      return v4.isNullable(v as zV4.ZodType);
+      return this.v4Layer.isNullable(v as any);
     } else {
-      return v3.isNullable(v as zV3.ZodType);
+      return this.v3Layer.isNullable(v as any);
     }
   }
 
   isArr(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodArray<any, any> | zV4.ZodArray<any> {
     if ('_zod' in v) {
-      return v4.isArr(v as zV4.ZodType);
+      return this.v4Layer.isArr(v as any);
     } else {
-      return v3.isArr(v as zV3.ZodType);
+      return this.v3Layer.isArr(v as any);
     }
   }
 
@@ -110,58 +124,42 @@ export abstract class SchemaCompatLayer {
     v: zV3.ZodType | zV4.ZodType,
   ): v is zV3.ZodUnion<[zV3.ZodType, ...zV3.ZodType[]]> | zV4.ZodUnion<[zV4.ZodType, ...zV4.ZodType[]]> {
     if ('_zod' in v) {
-      return v4.isUnion(v as zV4.ZodType);
+      return this.v4Layer.isUnion(v as any);
     } else {
-      return v3.isUnion(v as zV3.ZodType);
+      return this.v3Layer.isUnion(v as any);
     }
   }
 
   isString(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodString | zV4.ZodString {
     if ('_zod' in v) {
-      return v4.isString(v as zV4.ZodType);
+      return this.v4Layer.isString(v as any);
     } else {
-      return v3.isString(v as zV3.ZodType);
+      return this.v3Layer.isString(v as any);
     }
   }
 
   isNumber(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodNumber | zV4.ZodNumber {
     if ('_zod' in v) {
-      return v4.isNumber(v as zV4.ZodType);
+      return this.v4Layer.isNumber(v as any);
     } else {
-      return v3.isNumber(v as zV3.ZodType);
+      return this.v3Layer.isNumber(v as any);
     }
   }
 
   isDate(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodDate | zV4.ZodDate {
     if ('_zod' in v) {
-      return v4.isDate(v as zV4.ZodType);
+      return this.v4Layer.isDate(v as any);
     } else {
-      return v3.isDate(v as zV3.ZodType);
+      return this.v3Layer.isDate(v as any);
     }
   }
 
   isDefault(v: zV3.ZodType | zV4.ZodType): v is zV3.ZodDefault<any> | zV4.ZodDefault<any> {
     if ('_zod' in v) {
-      return v4.isDefault(v as zV4.ZodType);
+      return this.v4Layer.isDefault(v as any);
     } else {
-      return v3.isDefault(v as zV3.ZodType);
+      return this.v3Layer.isDefault(v as any);
     }
-  }
-
-  private getV3Context(): HandlerContextV3 {
-    return {
-      model: this.model,
-
-      processZodType: value => this.processZodType(value) as any,
-    };
-  }
-
-  private getV4Context(): HandlerContextV4 {
-    return {
-      model: this.model,
-
-      processZodType: value => this.processZodType(value) as any,
-    };
   }
 
   abstract shouldApply(): boolean;
@@ -176,9 +174,9 @@ export abstract class SchemaCompatLayer {
     options: { passthrough?: boolean } = { passthrough: true },
   ): zV3.ZodObject<any, any, any, any, any> | zV4.ZodObject<any, any> {
     if ('_zod' in value) {
-      return v4.defaultZodObjectHandler(this.getV4Context(), value, options);
+      return this.v4Layer.defaultZodObjectHandler(value, options);
     } else {
-      return v3.defaultZodObjectHandler(this.getV3Context(), value, options);
+      return this.v3Layer.defaultZodObjectHandler(value, options);
     }
   }
 
@@ -186,7 +184,7 @@ export abstract class SchemaCompatLayer {
     description: string | undefined,
     constraints: ConstraintHelperText,
   ): string | undefined {
-    return v3.mergeParameterDescription(description, constraints);
+    return this.v3Layer.mergeParameterDescription(description, constraints);
   }
 
   public defaultUnsupportedZodTypeHandler(
@@ -194,15 +192,13 @@ export abstract class SchemaCompatLayer {
     throwOnTypes?: readonly (v3.UnsupportedZodType | v4.UnsupportedZodType)[],
   ): zV3.ZodType | zV4.ZodType {
     if ('_zod' in value) {
-      return v4.defaultUnsupportedZodTypeHandler(
-        this.getV4Context(),
-        value as zV4.ZodType,
+      return this.v4Layer.defaultUnsupportedZodTypeHandler(
+        value as any,
         (throwOnTypes ?? v4.UNSUPPORTED_ZOD_TYPES) as typeof v4.UNSUPPORTED_ZOD_TYPES,
       );
     } else {
-      return v3.defaultUnsupportedZodTypeHandler(
-        this.getV3Context(),
-        value as zV3.ZodType,
+      return this.v3Layer.defaultUnsupportedZodTypeHandler(
+        value as any,
         (throwOnTypes ?? v3.UNSUPPORTED_ZOD_TYPES) as typeof v3.UNSUPPORTED_ZOD_TYPES,
       );
     }
@@ -213,17 +209,17 @@ export abstract class SchemaCompatLayer {
     handleChecks: readonly v3.ArrayCheckType[] = v3.ALL_ARRAY_CHECKS,
   ): zV3.ZodArray<any, any> | zV4.ZodArray<any> {
     if ('_zod' in value) {
-      return v4.defaultZodArrayHandler(this.getV4Context(), value, handleChecks);
+      return this.v4Layer.defaultZodArrayHandler(value, handleChecks);
     } else {
-      return v3.defaultZodArrayHandler(this.getV3Context(), value, handleChecks);
+      return this.v3Layer.defaultZodArrayHandler(value, handleChecks);
     }
   }
 
   public defaultZodUnionHandler(value: ZodUnion): zV3.ZodType | zV4.ZodType {
     if ('_zod' in value) {
-      return v4.defaultZodUnionHandler(this.getV4Context(), value as any);
+      return this.v4Layer.defaultZodUnionHandler(value as any);
     } else {
-      return v3.defaultZodUnionHandler(this.getV3Context(), value as any);
+      return this.v3Layer.defaultZodUnionHandler(value as any);
     }
   }
 
@@ -232,9 +228,9 @@ export abstract class SchemaCompatLayer {
     handleChecks: readonly v3.StringCheckType[] = v3.ALL_STRING_CHECKS,
   ): zV3.ZodString | zV4.ZodString {
     if ('_zod' in value) {
-      return v4.defaultZodStringHandler(value);
+      return this.v4Layer.defaultZodStringHandler(value);
     } else {
-      return v3.defaultZodStringHandler(value, handleChecks);
+      return this.v3Layer.defaultZodStringHandler(value, handleChecks);
     }
   }
 
@@ -243,17 +239,17 @@ export abstract class SchemaCompatLayer {
     handleChecks: readonly v3.NumberCheckType[] = v3.ALL_NUMBER_CHECKS,
   ): zV3.ZodNumber | zV4.ZodNumber {
     if ('_zod' in value) {
-      return v4.defaultZodNumberHandler(value);
+      return this.v4Layer.defaultZodNumberHandler(value);
     } else {
-      return v3.defaultZodNumberHandler(value, handleChecks);
+      return this.v3Layer.defaultZodNumberHandler(value, handleChecks);
     }
   }
 
   public defaultZodDateHandler(value: zV3.ZodDate | zV4.ZodDate): zV3.ZodString | zV4.ZodString {
     if ('_zod' in value) {
-      return v4.defaultZodDateHandler(value);
+      return this.v4Layer.defaultZodDateHandler(value);
     } else {
-      return v3.defaultZodDateHandler(value);
+      return this.v3Layer.defaultZodDateHandler(value);
     }
   }
 
@@ -293,9 +289,9 @@ export abstract class SchemaCompatLayer {
     handleTypes?: readonly string[],
   ): zV3.ZodType | zV4.ZodType {
     if ('_zod' in value) {
-      return v4.defaultZodNullableHandler(this.getV4Context(), value, handleTypes ?? v4.SUPPORTED_ZOD_TYPES);
+      return this.v4Layer.defaultZodNullableHandler(value, handleTypes ?? v4.SUPPORTED_ZOD_TYPES);
     } else {
-      return v3.defaultZodNullableHandler(this.getV3Context(), value, handleTypes ?? v3.SUPPORTED_ZOD_TYPES);
+      return this.v3Layer.defaultZodNullableHandler(value as any, handleTypes ?? v3.SUPPORTED_ZOD_TYPES);
     }
   }
 
