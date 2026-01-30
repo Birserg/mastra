@@ -24,7 +24,20 @@ export const useCodemirrorTheme = (): Extension => {
         gutterForeground: '#939393',
         background: 'transparent',
       },
-      styles: [{ tag: [t.className, t.propertyName] }],
+      styles: [
+        { tag: [t.className, t.propertyName] },
+        // Markdown-specific styles using Dracula colors
+        { tag: t.heading, color: '#ff79c6', fontWeight: 'bold' },
+        { tag: [t.heading1, t.heading2, t.heading3, t.heading4, t.heading5, t.heading6], color: '#ff79c6', fontWeight: 'bold' },
+        { tag: t.emphasis, fontStyle: 'italic', color: '#f8f8f2' },
+        { tag: t.strong, fontWeight: 'bold', color: '#f8f8f2' },
+        { tag: t.link, color: '#8be9fd', textDecoration: 'underline' },
+        { tag: t.url, color: '#8be9fd' },
+        { tag: t.monospace, color: '#f1fa8c' },
+        { tag: t.strikethrough, textDecoration: 'line-through' },
+        { tag: t.quote, fontStyle: 'italic', color: '#6272a4' },
+        { tag: t.list, color: '#50fa7b' },
+      ],
     });
 
     const customLineNumberTheme = EditorView.theme({
